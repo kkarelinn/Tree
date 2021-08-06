@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
-    public static void main(String[] params) throws IOException {
+    public static void main(String[] params) throws IOException{
         List<String> lines = Files.readAllLines(Paths.get("numbers.txt").toAbsolutePath());
 
       //  System.out.println(lines);
@@ -15,21 +15,26 @@ public class Main {
         for (String line : lines) {
             root.insert(line);
         }
-
-
-        //System.out.println(root.containString("18АА0603"));
-
-      //   writeTreeToFile( root);
-
-        //    TreeNode fromFile = readFromFile("tree.dat");
-
+		
+		
+		  System.out.println("Вставка строк в дерево завершена успешно");
+		  
+		  System.out.println(root.containString("18АА0597"));
+		  
+		  writeTreeToFile("tree.dat", root);
+		  
+		  TreeNode fromFile = readFromFile("tree.dat");
+		 
+		 
+        
+        System.out.println("Извлечение строк из дерева");
         List<String> extractedFromTree = new ArrayList<>();
-         root.getAllNumbers("", extractedFromTree);
-     //   System.out.println(TreeNode);
+         root.getAllNumbers(extractedFromTree);
+        // System.out.println(extractedFromTree);
 
-        for (String t: extractedFromTree) {
-            System.out.println(t);
-        }
+		
+		  for (String t: extractedFromTree) { System.out.println(t); }
+		 
     }
 
     static class TreeNode {
@@ -41,73 +46,114 @@ public class Main {
         }
 
         
-        
-        
-        public void insert(String data) {
+        //вставка строк в дерево
+        public void insert(String line) {
 
-            if (data.length() == 0) { return; }
-            TreeNode parrent = this;
-           
-            
-            for(int i = 0; i < data.length();i++) {
-                      
-            	char c = data.charAt(i);
-            	
-            	TreeNode child = searchChild(c, parrent); //���� ��� "�" � ����� ������� ����
-            	if (parrent.children == null) { parrent.children = new ArrayList<>(); }
-            	
-            	if (child  == null) {
-                    child = new TreeNode(c);
-                    parrent.children.add(child);
-                  //  parrent = child;
-                }
-            	 parrent = child;
-            }}
-      
-        
-            private TreeNode searchChild (char c, TreeNode parr) {
-            	if (parr.children != null) {
-            		TreeNode child=null;
-            		for(int i = 0; i < parr.children.size(); i++) {
-            			if(parr.children.get(i).value==c)
-            				child = parr.children.get(i);
-            			return child;
-            		}
+        	if (line.length() == 0) { return; }
+        	TreeNode parrent =this;
+        	for (char ch : line.toCharArray()) {
+        		char c = ch;
+        		TreeNode child = searchChild(c, parrent); //ищем НОД "с" в детях текущего нода
+        		if (child  == null) {
+        			child = new TreeNode(c);
+        			if (parrent.children == null) { parrent.children = new ArrayList<>(); }
+        			parrent.children.add(child);
+        		}
+        		parrent = child;
 
-            	}
-            	return null;
-            }  
-//         
-//         
-        public TreeNode addNewChild(TreeNode parrent, TreeNode child) {
-        	if(parrent!=null && child!=null)
-        	parrent.children.add(child);
-        	return child;
+        	}
+
         }
 
-		/*
-		 * private TreeNode findNodeByChar(char c) { if (children != null) {
-		 * for(TreeNode tn: children) { if (node.value == c) { return tn; } } } return
-		 * null; }
-		 */
+        /* Вставка строк рекурсией
+           public void insert(String data) {
+            if (data.length() == 0) {
+                return;
+            }
+            if (children == null) {
+                children = new ArrayList<>();
+            }
+            char c = data.charAt(0);
+            TreeNode child = searchChild(c);
+            if (child == null) {
+                child = new TreeNode(c);
+                children.add(child);
+            }
+            child.insert(data.substring(1));
+        }
+         
+         */
+      
+       // поиск символа(НОДа) в детях
+        private TreeNode searchChild (char c, TreeNode parrent) {
+        	if (parrent.children != null) {
+        		for (TreeNode child : parrent.children) {
+        			if(child.value==c) {
+        				return child;}
+        		}
+        	}
+        	return null;
+        }  
+
+      /*  поиск "детей" рекурсией
+        private TreeNode searchChild(char c) {
+            if (children != null) {
+                for(TreeNode node: children) {
+                    if (node.value == c) {
+                        return node;
+                    }
+                }
+            }
+            return null;
+        }
+        */
         
         
-        //good
+		
+        private boolean containString(String str) { 
+        	TreeNode current = this; 
+        	for(char ch : str.toCharArray()) { 
+        		current = current.searchChild(ch,current); 
+        		if (current == null) { 
+        			return false; 
+        			} 
+        		} 
+        	return true; }
+		 
+
+        
+        public void getAllNumbers(List<String> result) {
+        	TreeNode nodeThis = this;
+        	TreeNode prevNode=null;
+        	String path = "";
+        	while(true) {
+        		
+        		if (nodeThis.children== null && nodeThis.value==' ') return;
+        		
+        		if (nodeThis.children!= null) {
+        			if (nodeThis.value!=' ') {path=path+nodeThis.value;}
+        			prevNode = nodeThis;
+        			if(nodeThis.children.size()!=0) {nodeThis = nodeThis.children.get(0);}
+        			}
+        		
+        		
+        		else {
+        			if (nodeThis.value!=' ') {path=path+nodeThis.value;}
+        			if(path.length()>7) {
+        			result.add(path);
+        			//System.out.println(path);
+        			}
+        			prevNode.children.remove(0);
+        			if(prevNode.children.size()==0) prevNode.children=null;
+        			path = "";
+          		   	nodeThis=this;
+          		   	prevNode = null;
+        			}
+        	   }
+        		   
+        }
        
-        
-        
-
-//        private boolean containString(String str) {
-//            TreeNode current = this;
-//            for (int i = 0; i < str.length(); i++) {
-//                current = current.searchChild(str.charAt(i),);
-//                if (current == null) {
-//                    return false;
-//                }
-//            }
-//            return true;
-//        }
-
+      /*  //рекурсия ГетАллНамберс
         public void getAllNumbers(String path, List<String> result) {
             if (value != ' ') {
                 path = path + value;
@@ -120,16 +166,17 @@ public class Main {
                 result.add(path);
             }
         }
-
-        public void Print() {
-           System.out.print(value);
-
+        */
+        
+          			
+        public void writeToFile(PrintWriter writer) {
+            writer.write(value);
             if (children != null) {
                 for (TreeNode node: children) {
-                   node.Print();  ;
+                    node.writeToFile(writer);
                 }
             }
-            System.out.print(", ");
+            writer.write(']');
         }
 
         public void readFromFile(FileReader reader) throws IOException {
@@ -145,11 +192,15 @@ public class Main {
         }
     }
 
-    public static void writeTreeToFile(TreeNode root) {
-        System.out.print('[');
-                        root.Print();
-        System.out.print(']');
-
+    public static void writeTreeToFile(String path, TreeNode root) {
+        try {
+            PrintWriter out = new PrintWriter(path);
+            root.writeToFile(out);
+            out.flush();
+            out.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     public static TreeNode readFromFile(String path) {
